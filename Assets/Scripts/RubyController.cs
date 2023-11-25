@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class RubyController : MonoBehaviour
 {
@@ -8,13 +10,27 @@ public class RubyController : MonoBehaviour
 
     public int maxHealth = 5;
 
+    public GameObject rubySprite;
+
     public GameObject projectilePrefab;
 
     public AudioClip throwSound;
     public AudioClip hitSound;
 
-    public int health { get { return currentHealth; } }
+    public ParticleSystem hurtParticle;
+
+    public int score;
+    public TextMeshProUGUI scoreText;
+
+    public int health 
+    {
+        get { return currentHealth; } 
+    }
     int currentHealth;
+
+    bool gameOver = false;
+    public GameObject gameOverText;
+    public GameObject winText;
 
     public float timeInvincible = 2.0f;
     bool isInvincible;
@@ -82,6 +98,33 @@ public class RubyController : MonoBehaviour
                 }
             }
         }
+        // Winning and Losing
+        if (currentHealth == 0)
+        {
+            gameOverText.SetActive(true);
+            gameOver = true;
+            speed = 0.0f;
+            //rubySprite.SetActive(false); //Stops the scene from restarting :/
+        }
+        if (score == 4)
+        {
+            winText.SetActive(true);
+        }
+        if (Input.GetKey(KeyCode.R))
+
+        {
+
+            if (gameOver == true)
+
+            {
+
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // this loads the currently active scene
+
+            }
+
+        }
+
+
     }
 
     void FixedUpdate()
@@ -102,7 +145,7 @@ public class RubyController : MonoBehaviour
 
             isInvincible = true;
             invincibleTimer = timeInvincible;
-
+            Instantiate(hurtParticle, transform.position + Vector3.up * 0.5f, Quaternion.identity);
             PlaySound(hitSound);
         }
 
@@ -110,6 +153,14 @@ public class RubyController : MonoBehaviour
 
         UIHealthBar.instance.SetValue(currentHealth / (float)maxHealth);
     }
+
+    // Score++;
+    public void ChangeScore(int scoreAmount)
+    {
+        score = (score + scoreAmount);
+        scoreText.text = "Fixed Robots: " + score.ToString();
+    }
+
 
     void Launch()
     {
