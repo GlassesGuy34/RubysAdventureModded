@@ -16,8 +16,12 @@ public class RubyController : MonoBehaviour
 
     public AudioClip throwSound;
     public AudioClip hitSound;
+    public AudioClip winSound;
+    public AudioClip loseSound;
+
 
     public ParticleSystem hurtParticle;
+    public ParticleSystem speedBoost;
 
     public int score;
     public TextMeshProUGUI scoreText;
@@ -31,6 +35,8 @@ public class RubyController : MonoBehaviour
     bool gameOver = false;
     public GameObject gameOverText;
     public GameObject winText;
+
+    bool soundPlayed;
 
     public float timeInvincible = 2.0f;
     bool isInvincible;
@@ -54,6 +60,7 @@ public class RubyController : MonoBehaviour
         currentHealth = maxHealth;
 
         audioSource = GetComponent<AudioSource>();
+        soundPlayed = false;
     }
 
     // Update is called once per frame
@@ -74,11 +81,18 @@ public class RubyController : MonoBehaviour
         animator.SetFloat("Look Y", lookDirection.y);
         animator.SetFloat("Speed", move.magnitude);
 
+        if (speed > 3)
+        {
+            speedBoost.Play();
+            //Won't work :(
+        }
+
         if (isInvincible)
         {
             invincibleTimer -= Time.deltaTime;
             if (invincibleTimer < 0)
                 isInvincible = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.C))
@@ -99,32 +113,34 @@ public class RubyController : MonoBehaviour
             }
         }
         // Winning and Losing
-        if (currentHealth == 0)
+        if (currentHealth == 0) //Losing
         {
             gameOverText.SetActive(true);
             gameOver = true;
             speed = 0.0f;
+            if (!soundPlayed)
+            {
+                PlaySound(loseSound);
+                soundPlayed = true;
+            }
             //rubySprite.SetActive(false); //Stops the scene from restarting :/
         }
-        if (score == 4)
+        if (score == 4) //Winning, int must be set to equal the # of robots
         {
             winText.SetActive(true);
+            if (!soundPlayed)
+            {
+                PlaySound(winSound);
+                soundPlayed = true;
+            }
         }
         if (Input.GetKey(KeyCode.R))
-
         {
-
             if (gameOver == true)
-
             {
-
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // this loads the currently active scene
-
             }
-
         }
-
-
     }
 
     void FixedUpdate()
